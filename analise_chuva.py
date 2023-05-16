@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
+from statsmodels.tsa.tsatools import detrend
 
 def climatology(df):
         
@@ -27,13 +28,13 @@ def climatology(df):
 
             monCount[date.month - 1] = monCount[date.month - 1] + 1
 
-    print(result)
+    #print(result)
 
     for c in range(1, 13):
         result[c - 1] = result[c - 1]/monCount[c - 1]
     
     
-    print(monCount)
+    #print(monCount)
     
     return result
 
@@ -48,50 +49,43 @@ def anomaly(df, cl):
     
     return an
 
+def plotclimatology(clim, fileName):
+    
+    m = ['Jan', 'Fev', 'Mar', 'Abr', 'Maio', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    
+    fig, ax = plt.subplots(figsize=(10,8))
+    ax.bar(m, clim)
 
-df = pd.read_csv('chuvaRMR.csv', sep=';')
+    plt.title('Climatologia mensal de Chuvas ' + fileName)
+    plt.xlabel('Meses do ano')
+    plt.ylabel('Chuva (mm)')
+
+    plt.ylim(0, 340)
+    
+    fileName = str(fileName)
+    plt.savefig('Climatologia_mensal_chuva_' + fileName + '.png', dpi = 300, format='png', bbox_inches="tight")
+
+df = pd.read_csv('chuvaSERTAOSAOFRANCISCO.csv', sep=';')
 df['Data'] = pd.to_datetime(df['Data'])
 
-#fig, ax = plt.subplots(figsize=(20,5))
+#CLIMATOLOGIA
 
-#ax.bar(df['Data'], df['mon_pluviometrico_hist_chuva_mm'], width=20)
+climResult = climatology(df)
 
-#plt.title('Chuvas em RMR')
-#plt.xlabel('Tempo')
-#plt.ylabel('Chuva (mm)')
-
-#plt.plot(df['Data'], df['mon_pluviometrico_hist_chuva_mm'])
-#plt.savefig('Climatologia_mensal_chuva_RMR.png', dpi = 300, format='png')
-
-#print(np.isnan(df.at[1, 'mon_pluviometrico_hist_chuva_mm']))
-#sum = climatology(df)
-
-#print(sum)
-
-#fig, ax = plt.subplots(figsize=(10, 6))
-
-#ax.bar(['Jan', 'Fev', 'Mar', 'Abr', 'Maio', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'], sum)
-
-#plt.title('Climatologia mensal de Chuvas RMR')
-#plt.xlabel('Meses do ano')
-#plt.ylabel('Chuva (mm)')
-
-#plt.ylim(0, 340)
-
-#plt.savefig('Climatologia_mensal_chuva_SertaoSaoFrancisco_limY.png', dpi = 300, format='png', bbox_inches="tight")
-
+plotclimatology(climResult, 'SERTAOFRANCISCO')
 
 #ANOMALIA
 
-an = pd.DataFrame(anomaly(df, sum))
+ann = anomaly(df, climResult)
+an = pd.DataFrame(anomaly(df, climResult))
 
-an = signal.detrend(an[0]);
+an1 = detrend(an[0]);
 
 an2 = signal.detrend(df['mon_pluviometrico_hist_chuva_mm'])
 
-print(pd.DataFrame(an)[0].corr(pd.DataFrame(an2)[0], method='spearman'))
+print(pd.DataFrame(an1)[0].corr(pd.DataFrame(an2)[0], method='spearman'))
 
-colormat=np.where(an>0, 'b','r')
+colormat=np.where(an2>0, 'b','r')
 
 fig, ax = plt.subplots(figsize=(20, 5))
 
