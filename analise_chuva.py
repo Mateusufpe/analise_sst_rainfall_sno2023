@@ -65,6 +65,7 @@ def plotclimatology(clim, fileName):
     fileName = str(fileName)
     plt.savefig('Climatologia_mensal_chuva_' + fileName + '.png', dpi = 300, format='png', bbox_inches="tight")
 
+
 df = pd.read_csv('chuvaSERTAOSAOFRANCISCO.csv', sep=';')
 df['Data'] = pd.to_datetime(df['Data'])
 
