@@ -89,7 +89,7 @@ an2 = detrend(df['mon_pluviometrico_hist_chuva_mm'])
 # print(pd.DataFrame(an1).corr(pd.DataFrame(an2), method='spearman'))
 # print(pd.DataFrame(an1).corr(an2[0], method='spearman'))
 
-print(scipy.stats.spearmanr(an1, an2)) 
+# print(scipy.stats.spearmanr(an1, an2)) 
 
 colormat=np.where(an2>0, 'b','r')
 
@@ -114,24 +114,27 @@ indices['Data'] = pd.to_datetime(df['Data'])
 
 fig, ax1 = plt.subplots(figsize=(20, 5))
 
-plt.title('Xcorr Sertão São Francisco - Dipolo')
+plt.title('Xcorr --')
 plt.xlabel('Lag')
 plt.ylabel('Coefficient Correlation')
 
 # plt.ylim(-1,1)
 
-corr = ax1.xcorr(an2, indices['Dipolo'], usevlines=True, lw=5, normed=True, maxlags=50)
-
-print(max(corr[1]))
-
-plt.savefig('XCorr SertaoSaoFrancisco - Dipolo.png', dpi = 300, format='png', bbox_inches="tight")
-
-'''an1 = np.array(an1)
-an2 = np.array(an2)
-
-corr = np.correlate(a=an1, v=an2)
-corr /= (len(an2) * np.std(an1) * np.std(an2)) # Normalization
-'''
+import matplotlib.ticker as ticker
 
 
+corr = ax1.xcorr(an2, indices['Nino3'], usevlines=True, lw=5, normed=True, maxlags=12)
 
+ax1.xaxis.set_major_locator(ticker.MultipleLocator(1))
+
+print('Maximo: ', max(corr[1]))
+print('Minimo: ', min(corr[1]))
+
+idMAX = abs(corr[1]).argmax()
+
+print('index do maior: ',idMAX)
+print('lag: ', corr[0][idMAX])
+
+print('lag: ', corr[1][22])
+
+plt.savefig('XCorr.png', dpi = 300, format='png', bbox_inches="tight")
